@@ -28,8 +28,10 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: CORS_ORIGIN
-        sync: false
-        placeholder: "https://your-frontend.onrender.com"
+        fromService:
+          type: web
+          name: scoreboard-frontend
+          property: host
       - key: AWS_ACCESS_KEY_ID
         sync: false
       - key: AWS_SECRET_ACCESS_KEY
@@ -50,8 +52,10 @@ services:
     startCommand: cd frontend && npm run preview -- --port $PORT --host
     envVars:
       - key: VITE_API_URL
-        sync: false
-        placeholder: "https://your-backend.onrender.com"
+        fromService:
+          type: web
+          name: scoreboard-backend
+          property: host
 
 databases:
   - name: scoreboard-db
