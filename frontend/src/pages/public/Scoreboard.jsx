@@ -113,7 +113,7 @@ export default function PublicScoreboard() {
                             </div>
 
                             <div className="table-wrapper">
-                                <table className="standings-table">
+                                <table className={`standings-table ${standingType === 'team' ? 'team-table' : ''}`}>
                                     {standingType === 'player' ? (
                                         <>
                                             <thead>
@@ -180,9 +180,9 @@ export default function PublicScoreboard() {
                                                             </td>
                                                             <td className="player-main-cell">
                                                                 <div className="player-cell">
-                                                                    <div className="player-avatar">
+                                                                    <div className="player-avatar team-avatar">
                                                                         {team.logo ? (
-                                                                            <img src={getImageUrl(team.logo)} alt={team.name} />
+                                                                            <img src={getImageUrl(team.logo)} alt={team.name} className="team-img" />
                                                                         ) : (
                                                                             <div className="avatar-placeholder">{team.name.charAt(0)}</div>
                                                                         )}
@@ -423,7 +423,8 @@ export default function PublicScoreboard() {
                     color: var(--text-light);
                     border-bottom: 2px solid var(--border);
                 }
-                .standings-table td { padding: 1.25rem 1rem; border-bottom: 1px solid var(--border); }
+                .standings-table td { padding: 1rem; border-bottom: 1px solid var(--border); }
+                .team-table td { padding: 0.5rem 1rem; }
                 
                 .rank-badge {
                     width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
@@ -434,14 +435,30 @@ export default function PublicScoreboard() {
                 .rank-3 { background: #ffedd5; color: #9a3412; }
 
                 .player-cell { display: flex; align-items: center; gap: 1rem; }
-                .player-avatar { width: 40px; height: 40px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+                .player-avatar { 
+                    width: 48px; 
+                    height: 48px; 
+                    border-radius: 12px; 
+                    overflow: hidden; 
+                    border: 1px solid var(--border);
+                    background: white;
+                    flex-shrink: 0;
+                }
+                .player-avatar.team-avatar {
+                    width: 84px;
+                    height: 84px;
+                    border-radius: 16px;
+                }
                 .player-avatar img { width: 100%; height: 100%; object-fit: cover; }
+                .player-avatar img.team-img { object-fit: contain; padding: 4px; }
                 .avatar-placeholder {
                     width: 100%; height: 100%; background: var(--primary-light);
                     color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700;
+                    font-size: 1.25rem;
                 }
                 .player-info { display: flex; flex-direction: column; }
                 .player-info .name { font-weight: 700; color: #1e293b; }
+                .team-table .player-info .name { font-size: 1.25rem; }
                 .team-mobile { display: none; font-size: 0.75rem; color: var(--text-light); }
                 .stats-mobile { display: none; }
 
@@ -520,6 +537,12 @@ export default function PublicScoreboard() {
                     .standing-dropdown {
                         width: 100%;
                     }
+                    .player-avatar.team-avatar {
+                        width: 64px;
+                        height: 64px;
+                        border-radius: 12px;
+                    }
+                    .team-table .player-info .name { font-size: 1.125rem; }
                     .tabs-container {
                         width: 100%;
                         overflow-x: auto;
