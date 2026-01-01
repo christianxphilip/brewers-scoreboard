@@ -43,13 +43,11 @@ services:
   # Frontend Static Site
   - type: web
     name: scoreboard-frontend
-    env: static
+    env: node
+    region: singapore
+    plan: free
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    startCommand: cd frontend && npm run preview -- --port $PORT --host
     envVars:
       - key: VITE_API_URL
         sync: false
