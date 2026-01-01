@@ -507,6 +507,19 @@ export default function PublicScoreboard() {
                 .p-team { font-size: 0.75rem; color: var(--text-light); }
 
                 @media (max-width: 768px) {
+                    .container { padding: 0; }
+                    .public-header .container { padding: 0 1.5rem; }
+                    .main-content { padding: 0; }
+                    .card { border-radius: 0 !important; border-left: none !important; border-right: none !important; box-shadow: none !important; }
+                    .tabs-container { border-radius: 0; border-left: none; border-right: none; margin-bottom: 1rem; }
+                    .view-header { padding: 1.5rem; }
+                    .standings-table td { padding: 1rem; }
+                    .rank-cell { padding-left: 1.5rem !important; }
+                    .player-main-cell { padding-right: 1.5rem !important; }
+                    .empty-state { margin: 0 1.5rem; }
+                    .matches-view { padding: 0; }
+                    .match-card { margin-bottom: 0.75rem; }
+
                     .public-header { padding: 2rem 0; }
                     .logo-badge { width: 60px; height: 60px; font-size: 2rem; border-radius: 16px; }
                     .public-header h1 { font-size: 1.5rem; }
@@ -526,6 +539,7 @@ export default function PublicScoreboard() {
                         flex-direction: column;
                         align-items: flex-start;
                         gap: 1rem;
+                        padding: 1.5rem;
                     }
                     .view-title-group {
                         width: 100%;
