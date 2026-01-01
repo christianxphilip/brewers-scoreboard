@@ -50,6 +50,20 @@ const startServer = async () => {
     try {
         await testConnection();
 
+        // Seed default admin if it doesn't exist
+        const { User } = require('./models');
+        const adminExists = await User.findOne({ where: { role: 'admin' } });
+        if (!adminExists) {
+            console.log('🌱 Seeding default admin user...');
+            await User.create({
+                email: 'admin@scoreboard.com',
+                password: 'admin123',
+                name: 'Admin User',
+                role: 'admin'
+            });
+            console.log('✅ Default admin user created');
+        }
+
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
             console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
