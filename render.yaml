@@ -41,10 +41,8 @@ services:
     healthCheckPath: /health
     
   # Frontend Static Site
-  - type: web
+  - type: static
     name: scoreboard-frontend
-    env: static
-    plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     routes:
