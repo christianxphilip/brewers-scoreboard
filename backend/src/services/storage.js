@@ -86,11 +86,9 @@ function getFileUrl(filePath, uploadType) {
         const bucket = process.env.AWS_S3_BUCKET;
         const region = s3Region;
 
-        if (region === 'us-east-1') {
-            return `https://${bucket}.s3.amazonaws.com/${filePath}`;
-        } else {
-            return `https://${bucket}.s3.${region}.amazonaws.com/${filePath}`;
-        }
+        // Use the standard virtual-hosted style URL
+        // For us-east-1, the region is often omitted in the hostname, but works with it too
+        return `https://${bucket}.s3.${region}.amazonaws.com/${filePath}`;
     } else {
         // Local filesystem - return relative path
         if (filePath.startsWith('http://') || filePath.startsWith('https://')) {

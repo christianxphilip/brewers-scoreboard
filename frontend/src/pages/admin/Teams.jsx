@@ -22,6 +22,9 @@ export default function Teams() {
     const [selectedPlayerId, setSelectedPlayerId] = useState('');
     const [playerSearch, setPlayerSearch] = useState('');
     const [showPlayerDropdown, setShowPlayerDropdown] = useState(false);
+    const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
+    const [newPlayerName, setNewPlayerName] = useState('');
+    const [showQuickAdd, setShowQuickAdd] = useState(false);
 
     useEffect(() => {
         fetchTeams();
@@ -109,7 +112,42 @@ export default function Teams() {
         setPlayerSearch('');
         setSelectedPlayerId('');
         setShowPlayerDropdown(false);
+        setShowQuickAdd(false);
+        setNewPlayerName('');
         setShowManageModal(true);
+    };
+
+    const handleQuickAddPlayer = async () => {
+        if (!newPlayerName.trim()) {
+            alert('Please enter a player name.', 'Name Required', 'warning');
+            return;
+        }
+
+        setIsCreatingPlayer(true);
+        try {
+            const response = await api.post('/players', {
+                name: newPlayerName,
+                teamId: selectedTeam.id
+            });
+
+            const newPlayer = response.data;
+
+            // Update local players list
+            setPlayers([...players, newPlayer]);
+
+            // Refresh teams to show new player in roster
+            fetchTeams();
+
+            // Reset state
+            setNewPlayerName('');
+            setShowQuickAdd(false);
+            alert('Player created and added to team!', 'Success', 'success');
+        } catch (error) {
+            console.error('Error creating player:', error);
+            alert(error.response?.data?.error || 'Failed to create player', 'Error', 'danger');
+        } finally {
+            setIsCreatingPlayer(false);
+        }
     };
 
     const handleAddPlayer = async (playerId) => {
@@ -271,6 +309,46 @@ export default function Teams() {
                                     <div className="select-empty">No players found</div>
                                 )}
                             </div>
+                        )}
+                    </div>
+
+                    <div style={{ marginTop: '1rem' }}>
+                        {showQuickAdd ? (
+                            <div className="quick-add-box glass">
+                                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.5rem', display: 'block' }}>QUICK CREATE NEW PLAYER</label>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Player name..."
+                                        value={newPlayerName}
+                                        onChange={(e) => setNewPlayerName(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleQuickAddPlayer()}
+                                        style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)' }}
+                                    />
+                                    <button
+                                        onClick={handleQuickAddPlayer}
+                                        className="btn-primary"
+                                        disabled={isCreatingPlayer}
+                                        style={{ padding: '0.5rem 1rem' }}
+                                    >
+                                        {isCreatingPlayer ? '...' : 'Add'}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowQuickAdd(false)}
+                                        className="btn-secondary"
+                                        style={{ padding: '0.5rem' }}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                className="btn-quick-add-trigger"
+                                onClick={() => setShowQuickAdd(true)}
+                            >
+                                + Create New Player
+                            </button>
                         )}
                     </div>
                 </div>
@@ -495,8 +573,33 @@ export default function Teams() {
                     font-size: 0.625rem; font-weight: 700;
                 }
                 .select-empty { padding: 1.5rem; text-align: center; color: var(--text-light); font-size: 0.875rem; font-style: italic; }
+
+                .btn-quick-add-trigger {
+                    width: 100%;
+                    padding: 0.75rem;
+                    background: transparent;
+                    border: 2px dashed var(--border);
+                    border-radius: 12px;
+                    color: var(--text-light);
+                    font-weight: 600;
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .btn-quick-add-trigger:hover {
+                    border-color: var(--primary);
+                    color: var(--primary);
+                    background: var(--primary-light);
+                }
+
+                .quick-add-box {
+                    padding: 1rem;
+                    border-radius: 12px;
+                    background: #f8fafc;
+                    border: 1px solid var(--primary-light);
+                }
             `}</style>
-        </div>
+        </div >
     );
 }
 

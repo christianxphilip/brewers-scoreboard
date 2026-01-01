@@ -44,10 +44,10 @@ router.get('/:id', authenticate, async (req, res) => {
     }
 });
 
-// Create player (admin only)
-router.post('/', authenticate, requireAdmin, upload.single('photo'), async (req, res) => {
+// Create player (admin or scorer)
+router.post('/', authenticate, upload.single('photo'), async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, teamId } = req.body;
         let photo = req.body.photo;
 
         if (req.file) {
@@ -59,6 +59,13 @@ router.post('/', authenticate, requireAdmin, upload.single('photo'), async (req,
         }
 
         const player = await Player.create({ name, photo });
+
+        // If teamId is provided, assign player to team
+        if (teamId) {
+            const { TeamPlayer } = require('../models');
+            await TeamPlayer.create({ teamId, playerId: player.id });
+        }
+
         res.status(201).json(player);
     } catch (error) {
         console.error('Error creating player:', error);

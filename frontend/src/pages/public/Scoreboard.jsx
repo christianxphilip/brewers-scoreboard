@@ -15,6 +15,7 @@ export default function PublicScoreboard() {
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('standings');
+    const [standingType, setStandingType] = useState('player');
 
     useEffect(() => {
         fetchData();
@@ -78,13 +79,7 @@ export default function PublicScoreboard() {
                             className={activeTab === 'standings' ? 'active' : ''}
                             onClick={() => setActiveTab('standings')}
                         >
-                            <span className="icon">👤</span> Player Standings
-                        </button>
-                        <button
-                            className={activeTab === 'team-standings' ? 'active' : ''}
-                            onClick={() => setActiveTab('team-standings')}
-                        >
-                            <span className="icon">🛡️</span> Team Standings
+                            <span className="icon">📊</span> Standings
                         </button>
                         <button
                             className={activeTab === 'matches' ? 'active' : ''}
@@ -99,126 +94,132 @@ export default function PublicScoreboard() {
                     {activeTab === 'standings' && (
                         <div className="standings-view card glass">
                             <div className="view-header">
-                                <h2>Player Standings</h2>
-                                <span className="player-count">{standings.length} Players</span>
+                                <div className="view-title-group">
+                                    <h2>{standingType === 'player' ? 'Player Standings' : 'Team Standings'}</h2>
+                                    <span className="player-count">
+                                        {standingType === 'player' ? `${standings.length} Players` : `${teamStandings.length} Teams`}
+                                    </span>
+                                </div>
+                                <div className="dropdown-wrapper">
+                                    <select
+                                        value={standingType}
+                                        onChange={(e) => setStandingType(e.target.value)}
+                                        className="standing-dropdown"
+                                    >
+                                        <option value="player">Player Standings</option>
+                                        <option value="team">Team Standings</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="table-wrapper">
                                 <table className="standings-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Rank</th>
-                                            <th>Player</th>
-                                            <th className="hide-mobile">Team</th>
-                                            <th className="hide-mobile">W</th>
-                                            <th className="hide-mobile">L</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {standings.map((player, index) => {
-                                            return (
-                                                <tr key={player.id} className="standings-row">
-                                                    <td className="rank-cell">
-                                                        <span className={`rank-badge rank-${index + 1}`}>{index + 1}</span>
-                                                    </td>
-                                                    <td className="player-main-cell">
-                                                        <div className="player-cell">
-                                                            <div className="player-avatar hide-mobile">
-                                                                {player.photo ? (
-                                                                    <img src={getImageUrl(player.photo)} alt="" />
-                                                                ) : (
-                                                                    <div className="avatar-placeholder">{player.name.charAt(0)}</div>
-                                                                )}
-                                                            </div>
-                                                            <div className="player-info">
-                                                                <span className="name">{player.name}</span>
-                                                                <span className="team-mobile">{player.teamName}</span>
-                                                                <div className="stats-mobile">
-                                                                    <span className="stat">W: {player.wins}</span>
-                                                                    <span className="stat">L: {player.losses}</span>
+                                    {standingType === 'player' ? (
+                                        <>
+                                            <thead>
+                                                <tr>
+                                                    <th>Rank</th>
+                                                    <th>Player</th>
+                                                    <th className="hide-mobile">Team</th>
+                                                    <th className="hide-mobile">W</th>
+                                                    <th className="hide-mobile">L</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {standings.map((player, index) => (
+                                                    <tr key={player.id} className="standings-row">
+                                                        <td className="rank-cell">
+                                                            <span className={`rank-badge rank-${index + 1}`}>{index + 1}</span>
+                                                        </td>
+                                                        <td className="player-main-cell">
+                                                            <div className="player-cell">
+                                                                <div className="player-avatar hide-mobile">
+                                                                    {player.photo ? (
+                                                                        <img src={getImageUrl(player.photo)} alt="" />
+                                                                    ) : (
+                                                                        <div className="avatar-placeholder">{player.name.charAt(0)}</div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="player-info">
+                                                                    <span className="name">{player.name}</span>
+                                                                    <span className="team-mobile">{player.teamName}</span>
+                                                                    <div className="stats-mobile">
+                                                                        <span className="stat">W: {player.wins}</span>
+                                                                        <span className="stat">L: {player.losses}</span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="hide-mobile">{player.teamName}</td>
-                                                    <td className="stat-win hide-mobile">{player.wins}</td>
-                                                    <td className="stat-loss hide-mobile">{player.losses}</td>
+                                                        </td>
+                                                        <td className="hide-mobile">{player.teamName}</td>
+                                                        <td className="stat-win hide-mobile">{player.wins}</td>
+                                                        <td className="stat-loss hide-mobile">{player.losses}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <thead>
+                                                <tr>
+                                                    <th className="rank-cell">Rank</th>
+                                                    <th>Team</th>
+                                                    <th className="hide-mobile">Wins</th>
+                                                    <th className="hide-mobile">Losses</th>
+                                                    <th className="hide-mobile">Win Rate</th>
                                                 </tr>
-                                            );
-                                        })}
-                                    </tbody>
+                                            </thead>
+                                            <tbody>
+                                                {teamStandings.map((team, index) => {
+                                                    const total = parseInt(team.wins) + parseInt(team.losses);
+                                                    const winRate = total > 0 ? Math.round((parseInt(team.wins) / total) * 100) : 0;
+
+                                                    return (
+                                                        <tr key={team.id}>
+                                                            <td className="rank-cell">
+                                                                <div className={`rank-badge rank-${index + 1}`}>{index + 1}</div>
+                                                            </td>
+                                                            <td className="player-main-cell">
+                                                                <div className="player-cell">
+                                                                    <div className="player-avatar">
+                                                                        {team.logo ? (
+                                                                            <img src={getImageUrl(team.logo)} alt={team.name} />
+                                                                        ) : (
+                                                                            <div className="avatar-placeholder">{team.name.charAt(0)}</div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="player-info">
+                                                                        <span className="name">{team.name}</span>
+                                                                        <div className="stats-mobile">
+                                                                            <span className="stat">W: {team.wins}</span>
+                                                                            <span className="stat">L: {team.losses}</span>
+                                                                            <span className="stat">{winRate}% WR</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="hide-mobile stat-win">{team.wins}</td>
+                                                            <td className="hide-mobile stat-loss">{team.losses}</td>
+                                                            <td className="hide-mobile">
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                                    <div style={{ width: '60px', height: '6px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                                                                        <div style={{ width: `${winRate}%`, height: '100%', background: 'var(--primary)' }}></div>
+                                                                    </div>
+                                                                    <span style={{ fontWeight: 700, fontSize: '0.8125rem' }}>{winRate}%</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </>
+                                    )}
                                 </table>
                             </div>
-                            {standings.length === 0 && (
+                            {((standingType === 'player' && standings.length === 0) || (standingType === 'team' && teamStandings.length === 0)) && (
                                 <div className="empty-state">
-                                    <p>No matches recorded yet.</p>
+                                    <p>No data recorded yet.</p>
                                 </div>
                             )}
-                        </div>
-                    )}
-                    {activeTab === 'team-standings' && (
-                        <div className="standings-view card glass">
-                            <div className="view-header">
-                                <h2>Team Standings</h2>
-                                <span className="player-count">{teamStandings.length} Teams</span>
-                            </div>
-
-                            <div className="table-wrapper">
-                                <table className="standings-table">
-                                    <thead>
-                                        <tr>
-                                            <th className="rank-cell">Rank</th>
-                                            <th>Team</th>
-                                            <th className="hide-mobile">Wins</th>
-                                            <th className="hide-mobile">Losses</th>
-                                            <th className="hide-mobile">Win Rate</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {teamStandings.map((team, index) => {
-                                            const total = parseInt(team.wins) + parseInt(team.losses);
-                                            const winRate = total > 0 ? Math.round((parseInt(team.wins) / total) * 100) : 0;
-
-                                            return (
-                                                <tr key={team.id}>
-                                                    <td className="rank-cell">
-                                                        <div className={`rank-badge rank-${index + 1}`}>{index + 1}</div>
-                                                    </td>
-                                                    <td className="player-main-cell">
-                                                        <div className="player-cell">
-                                                            <div className="player-avatar">
-                                                                {team.logo ? (
-                                                                    <img src={getImageUrl(team.logo)} alt={team.name} />
-                                                                ) : (
-                                                                    <div className="avatar-placeholder">{team.name.charAt(0)}</div>
-                                                                )}
-                                                            </div>
-                                                            <div className="player-info">
-                                                                <span className="name">{team.name}</span>
-                                                                <div className="stats-mobile">
-                                                                    <span className="stat">W: {team.wins}</span>
-                                                                    <span className="stat">L: {team.losses}</span>
-                                                                    <span className="stat">{winRate}% WR</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="hide-mobile stat-win">{team.wins}</td>
-                                                    <td className="hide-mobile stat-loss">{team.losses}</td>
-                                                    <td className="hide-mobile">
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                            <div style={{ width: '60px', height: '6px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-                                                                <div style={{ width: `${winRate}%`, height: '100%', background: 'var(--primary)' }}></div>
-                                                            </div>
-                                                            <span style={{ fontWeight: 700, fontSize: '0.8125rem' }}>{winRate}%</span>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
                         </div>
                     )}
 
@@ -300,7 +301,7 @@ export default function PublicScoreboard() {
                         </div>
                     )}
                 </div>
-            </div>
+            </div >
 
             <style>{`
                 .public-scoreboard {
@@ -374,6 +375,30 @@ export default function PublicScoreboard() {
                     align-items: center;
                     margin-bottom: 2rem;
                 }
+                .view-title-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+                .view-title-group h2 { margin: 0; }
+                .standing-dropdown {
+                    padding: 0.5rem 2rem 0.5rem 1rem;
+                    border-radius: 10px;
+                    border: 1px solid var(--border);
+                    background: white;
+                    font-weight: 700;
+                    color: var(--text);
+                    cursor: pointer;
+                    appearance: none;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+                    background-repeat: no-repeat;
+                    background-position: right 0.5rem center;
+                    background-size: 1rem;
+                    transition: all 0.2s;
+                }
+                .standing-dropdown:hover { border-color: var(--primary); }
+                .standing-dropdown:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
                 .player-count {
                     font-size: 0.75rem;
                     font-weight: 800;
@@ -480,7 +505,37 @@ export default function PublicScoreboard() {
                     .player-main-cell { vertical-align: top; }
 
                     .match-results-grid { grid-template-columns: 1fr; }
-                    .tabs button { padding: 0.625rem 1rem; font-size: 0.875rem; }
+                    .view-header {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 1rem;
+                    }
+                    .view-title-group {
+                        width: 100%;
+                        justify-content: space-between;
+                    }
+                    .dropdown-wrapper {
+                        width: 100%;
+                    }
+                    .standing-dropdown {
+                        width: 100%;
+                    }
+                    .tabs-container {
+                        width: 100%;
+                        overflow-x: auto;
+                        display: block;
+                        -webkit-overflow-scrolling: touch;
+                        padding: 0.5rem 0;
+                    }
+                    .tabs {
+                        width: max-content;
+                        padding: 0 1.5rem;
+                    }
+                    .tabs button {
+                        padding: 0.625rem 1rem;
+                        font-size: 0.875rem;
+                        white-space: nowrap;
+                    }
                 }
 
                 .btn-edit-match {
@@ -515,6 +570,6 @@ export default function PublicScoreboard() {
                 .scorer-pill .label { color: #94a3b8; font-weight: 500; }
                 .scorer-pill .name { color: #1e293b; font-weight: 700; }
             `}</style>
-        </div>
+        </div >
     );
 }
